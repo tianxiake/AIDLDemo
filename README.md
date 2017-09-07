@@ -1,0 +1,26 @@
+# AIDLDemo
+这个Demo演示的是AIDL在两个应用中进行通信
+##AIDLServer AIDL服务建立步骤：
+
+1>新建AIDL文件 --> IRemoteService
+2>Gradle自动会根据我们定义的AIDL文件生成一个对应的java文件 --> IRemoteService.java
+由于IRemoteService中用到了自定义的Book类型,所以要新建一个Book.AIDL 里面只需要写上parcelable Book;
+（注意：IDE不会自动帮我们在IRemoteService.aidl中导入Book类型所在的包名和类型，所以需要手动导入。）
+
+3>对我们用到的自定类类型创建类Book.java
+这个Book类必须实现Parcelable接口 代码比较固定
+（注意：AIDL中使用的类型必须可以序列化.注意这个Book.java按文件必须和Book.aidl文件包名要一致）
+4>编写一个Service -->AIDLService
+实现IRemoteService.stub类作为IBinder返回
+##Client
+
+最重要的一步：将服务端生成的IRemoteService.java文件和Book.java文件拷贝到Client
+（注意：拷贝过来的类的包名必须和AIDLServer保持一致）
+发送一个Intent去绑定AIDLService.绑定成功
+调用IRemoteService.Stub.asInterface(IBinder)就获取到了和访问服务器的饮用了。（当然可以看做这是一个信物吧）
+##AIDL核心原理
+
+第一步：需要相互认识（AIDL文件）
+第二步：客户端和服务端都必须持有一份.java文件（服务端多持有AIDL文件）
+第三步：互信后，我们通信借助于Binder这个底层驱动。将数据以原语的形式传递给
+对方，对方解析到原语数据，进行重新装载数据构建对象供给本地使用
